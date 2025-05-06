@@ -3,7 +3,9 @@ const pool = require("../config/db");
 // Obtener lista de técnicos
 const getTechnicians = async (req, res) => {
   try {
-    const result = await pool.query("SELECT id, nombre, especialidad, activo, creado_en FROM tecnicos ORDER BY id ASC");
+    const result = await pool.query(
+      "SELECT id, nombre, dni, especialidad, activo, creado_en FROM tecnicos ORDER BY id ASC"
+    );
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: "Error al obtener técnicos" });
@@ -13,11 +15,11 @@ const getTechnicians = async (req, res) => {
 // Crear nuevo técnico
 const createTechnician = async (req, res) => {
   try {
-    const { nombre, especialidad, activo } = req.body;
+    const { nombre, dni, especialidad, activo } = req.body;
 
     const result = await pool.query(
-      "INSERT INTO tecnicos (nombre, especialidad, activo, creado_en) VALUES ($1, $2, $3, NOW()) RETURNING *",
-      [nombre, especialidad, activo]
+      "INSERT INTO tecnicos (nombre, dni, especialidad, activo, creado_en) VALUES ($1, $2, $3, $4, NOW()) RETURNING *",
+      [nombre, dni, especialidad, activo]
     );
 
     res.status(201).json({ message: "Técnico creado exitosamente", tecnico: result.rows[0] });
@@ -30,11 +32,11 @@ const createTechnician = async (req, res) => {
 const updateTechnician = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, especialidad } = req.body;
+    const { nombre, dni, especialidad } = req.body;
 
     const result = await pool.query(
-      "UPDATE tecnicos SET nombre = $1, especialidad = $2 WHERE id = $3 RETURNING *",
-      [nombre, especialidad, id]
+      "UPDATE tecnicos SET nombre = $1, dni = $2, especialidad = $3 WHERE id = $4 RETURNING *",
+      [nombre, dni, especialidad, id]
     );
 
     if (result.rows.length === 0) {
